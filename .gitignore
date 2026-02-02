@@ -27,7 +27,6 @@ Thumbs.db
 
 # Config
 .env
-config.yaml
 
 # Logs
 *.log
@@ -46,3 +45,6 @@ temp/
 # Docs (generated or not needed in repo)
 docs/
 !docs/README.md
+
+# dev-config
+config.dev.yaml

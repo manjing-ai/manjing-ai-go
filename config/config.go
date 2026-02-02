@@ -49,8 +49,12 @@ type SwaggerConfig struct {
 
 // Load 读取配置文件
 func Load() (*Config, error) {
+	return LoadWithPath("")
+}
+
+// LoadWithPath 指定配置文件路径读取
+func LoadWithPath(path string) (*Config, error) {
 	v := viper.New()
-	v.SetConfigName("config")
 	v.SetConfigType("yaml")
 	v.AddConfigPath(".")
 	v.AddConfigPath("./config")
@@ -60,8 +64,27 @@ func Load() (*Config, error) {
 
 	setDefaults(v)
 
-	if err := v.ReadInConfig(); err != nil {
-		return nil, fmt.Errorf("read config failed: %w", err)
+	env := v.GetString("env")
+	if env == "" {
+		env = "dev"
+	}
+	v.Set("env", env)
+
+	// 指定路径优先
+	if path != "" {
+		v.SetConfigFile(path)
+		if err := v.ReadInConfig(); err != nil {
+			return nil, fmt.Errorf("read config failed: %w", err)
+		}
+	} else {
+		// 优先读取 config.<env>.yaml，失败则回退到 config.yaml
+		v.SetConfigName("config." + env)
+		if err := v.ReadInConfig(); err != nil {
+			v.SetConfigName("config")
+			if err := v.ReadInConfig(); err != nil {
+				return nil, fmt.Errorf("read config failed: %w", err)
+			}
+		}
 	}
 
 	var cfg Config
@@ -74,6 +97,15 @@ func Load() (*Config, error) {
 // MustLoad 读取配置文件（失败直接 panic）
 func MustLoad() *Config {
 	cfg, err := Load()
+	if err != nil {
+		panic(err)
+	}
+	return cfg
+}
+
+// MustLoadWithPath 指定路径读取配置（失败直接 panic）
+func MustLoadWithPath(path string) *Config {
+	cfg, err := LoadWithPath(path)
 	if err != nil {
 		panic(err)
 	}

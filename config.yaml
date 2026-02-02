@@ -1,0 +1,20 @@
+app:
+  addr: ":8080"
+  mode: "debug"
+
+db:
+  dsn: "postgres://postgres:password@127.0.0.1:5432/database_name?sslmode=disable"
+
+jwt:
+  secret: "change-me"
+  salt: "change-me-too"
+  expire_days: 3
+  renew_threshold_days: 2
+
+redis:
+  addr: "127.0.0.1:6379"
+  password: "password"
+  db: 0
+
+swagger:
+  enable: true

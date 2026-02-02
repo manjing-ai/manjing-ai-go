@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"flag"
 
 	"manjing-ai-go/config"
 	"manjing-ai-go/internal/handler"
@@ -24,7 +25,9 @@ import (
 
 func main() {
 	logger.Init()
-	cfg := config.MustLoad()
+	configPath := flag.String("config", "", "config file path")
+	flag.Parse()
+	cfg := config.MustLoadWithPath(*configPath)
 	gin.SetMode(cfg.App.Mode)
 
 	db, err := repository.InitDB(cfg.DB.DSN)

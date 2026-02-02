@@ -9,6 +9,9 @@
    - `go run ./cmd/migrate up`
 3) 启动 API：
    - `go run ./cmd/api`
+   - 使用开发环境配置（PowerShell）：`$env:MJ_ENV="dev"; go run ./cmd/api`
+   - 使用开发环境配置（cmd）：`set MJ_ENV=dev && go run ./cmd/api`
+   - 直接指定配置文件：`go run ./cmd/api -config config.dev.yaml`
 4) 安装 swag：
    - `go install github.com/swaggo/swag/cmd/swag@v1.16.3`
 5) 生成 Swagger：
