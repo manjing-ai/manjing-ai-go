@@ -13,9 +13,13 @@ import (
 )
 
 // NewRouter 构建路由
-func NewRouter(cfg *config.Config, authHandler *handler.AuthHandler, rdb *redisclient.Client) *gin.Engine {
+func NewRouter(cfg *config.Config, authHandler *handler.AuthHandler, resHandler *handler.ResourceHandler, rdb *redisclient.Client) *gin.Engine {
 	r := gin.New()
 	r.Use(gin.Recovery())
+
+	if cfg.Storage.Type == "local" {
+		r.Static("/storage", cfg.Storage.Local.BaseDir)
+	}
 
 	if cfg.Swagger.Enable {
 		swaggerDocs.SwaggerInfo.BasePath = "/"
@@ -41,6 +45,16 @@ func NewRouter(cfg *config.Config, authHandler *handler.AuthHandler, rdb *redisc
 			users.PUT("/:id/status", authHandler.UpdateStatus)
 			users.PUT("/:id/avatar", authHandler.UpdateAvatar)
 		}
+	}
+
+	v1 := r.Group("/v1")
+	v1.Use(middleware.AuthMiddleware(cfg.JWT, rdb))
+	{
+		v1.POST("/resources", resHandler.Upload)
+		v1.GET("/resources", resHandler.List)
+		v1.GET("/resources/:id", resHandler.Detail)
+		v1.PUT("/resources/:id", resHandler.Update)
+		v1.DELETE("/resources/:id", resHandler.Delete)
 	}
 
 	return r

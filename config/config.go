@@ -13,6 +13,7 @@ type Config struct {
 	DB      DBConfig      `mapstructure:"db"`
 	JWT     JWTConfig     `mapstructure:"jwt"`
 	Redis   RedisConfig   `mapstructure:"redis"`
+	Storage StorageConfig `mapstructure:"storage"`
 	Swagger SwaggerConfig `mapstructure:"swagger"`
 }
 
@@ -40,6 +41,27 @@ type RedisConfig struct {
 	Addr     string `mapstructure:"addr"`
 	Password string `mapstructure:"password"`
 	DB       int    `mapstructure:"db"`
+}
+
+// StorageConfig 存储配置
+type StorageConfig struct {
+	Type           string       `mapstructure:"type"` // local/cos
+	MaxFileSizeMB  int64        `mapstructure:"max_file_size_mb"`
+	MaxTotalSizeMB int64        `mapstructure:"max_total_size_mb"`
+	Local          LocalStorage `mapstructure:"local"`
+	COS            COSStorage   `mapstructure:"cos"`
+}
+
+// LocalStorage 本地存储
+type LocalStorage struct {
+	BaseDir string `mapstructure:"base_dir"`
+	BaseURL string `mapstructure:"base_url"`
+}
+
+// COSStorage 腾讯云 COS
+type COSStorage struct {
+	Bucket string `mapstructure:"bucket"`
+	Region string `mapstructure:"region"`
 }
 
 // SwaggerConfig Swagger 配置
@@ -121,4 +143,9 @@ func setDefaults(v *viper.Viper) {
 	v.SetDefault("redis.addr", "127.0.0.1:6379")
 	v.SetDefault("redis.password", "")
 	v.SetDefault("redis.db", 0)
+	v.SetDefault("storage.type", "local")
+	v.SetDefault("storage.max_file_size_mb", 20)
+	v.SetDefault("storage.max_total_size_mb", 5120)
+	v.SetDefault("storage.local.base_dir", "./storage")
+	v.SetDefault("storage.local.base_url", "http://localhost:8080/storage")
 }

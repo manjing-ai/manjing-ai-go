@@ -55,6 +55,19 @@ definitions:
         description: 状态（0禁用/1正常）
         type: integer
     type: object
+  handler.UpdateReq:
+    properties:
+      category:
+        description: 分类（可选）
+        type: string
+      extra_data:
+        additionalProperties: true
+        description: 扩展数据（JSON）
+        type: object
+      name:
+        description: 资源名称（可选）
+        type: string
+    type: object
 info:
   contact: {}
   description: Manjing AI backend API.
@@ -210,6 +223,156 @@ paths:
       summary: 更新用户状态
       tags:
       - User
+  /v1/resources:
+    get:
+      parameters:
+      - description: 页码
+        in: query
+        name: page
+        type: integer
+      - description: 每页数量
+        in: query
+        name: page_size
+        type: integer
+      - description: 类型
+        in: query
+        name: type
+        type: string
+      - description: 分类
+        in: query
+        name: category
+        type: string
+      - description: 状态
+        in: query
+        name: status
+        type: string
+      - description: 关键词
+        in: query
+        name: keyword
+        type: string
+      - description: 排序
+        in: query
+        name: sort
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.Resp'
+      security:
+      - BearerAuth: []
+      summary: 获取资源列表
+      tags:
+      - Resource
+    post:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - description: 资源文件
+        in: formData
+        name: file
+        required: true
+        type: file
+      - description: 资源名称
+        in: formData
+        name: name
+        type: string
+      - description: 资源类型
+        in: formData
+        name: type
+        type: string
+      - description: 分类
+        in: formData
+        name: category
+        type: string
+      - description: 扩展数据(JSON)
+        in: formData
+        name: extra_data
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/handler.Resp'
+      security:
+      - BearerAuth: []
+      summary: 上传资源
+      tags:
+      - Resource
+  /v1/resources/{id}:
+    delete:
+      parameters:
+      - description: 资源ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 是否硬删除
+        in: query
+        name: hard
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+          schema:
+            $ref: '#/definitions/handler.Resp'
+      security:
+      - BearerAuth: []
+      summary: 删除资源
+      tags:
+      - Resource
+    get:
+      parameters:
+      - description: 资源ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.Resp'
+      security:
+      - BearerAuth: []
+      summary: 获取资源详情
+      tags:
+      - Resource
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: 资源ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 更新信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handler.UpdateReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.Resp'
+      security:
+      - BearerAuth: []
+      summary: 更新资源信息
+      tags:
+      - Resource
 securityDefinitions:
   BearerAuth:
     in: header

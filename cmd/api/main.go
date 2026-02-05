@@ -11,6 +11,7 @@ import (
 	"manjing-ai-go/internal/service"
 	"manjing-ai-go/pkg/logger"
 	redisclient "manjing-ai-go/pkg/redis"
+	"manjing-ai-go/pkg/storage"
 
 	"github.com/gin-gonic/gin"
 )
@@ -45,7 +46,19 @@ func main() {
 	authSvc := service.NewAuthService(userRepo, cfg.JWT, rdb)
 	authHandler := handler.NewAuthHandler(authSvc)
 
-	r := router.NewRouter(cfg, authHandler, rdb)
+	var storageSvc storage.Service
+	switch cfg.Storage.Type {
+	case "cos":
+		storageSvc = storage.NewCOSStorage(cfg.Storage.COS)
+	default:
+		storageSvc = storage.NewLocalStorage(cfg.Storage.Local)
+	}
+
+	resRepo := repository.NewResourceRepo(db)
+	resSvc := service.NewResourceService(resRepo, storageSvc, cfg.Storage)
+	resHandler := handler.NewResourceHandler(resSvc)
+
+	r := router.NewRouter(cfg, authHandler, resHandler, rdb)
 	logger.L().Info("api listening on ", cfg.App.Addr)
 	_ = r.Run(cfg.App.Addr)
 }

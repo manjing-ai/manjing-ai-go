@@ -16,5 +16,16 @@ redis:
   password: "password"
   db: 0
 
+storage:
+  type: "local"
+  max_file_size_mb: 20
+  max_total_size_mb: 5120
+  local:
+    base_dir: "./storage"
+    base_url: "http://localhost:8080/storage"
+  cos:
+    bucket: ""
+    region: ""
+
 swagger:
   enable: true
