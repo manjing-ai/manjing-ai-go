@@ -47,6 +47,9 @@ if __name__ == "__main__":
         print("Error: Missing env vars", file=sys.stderr)
         sys.exit(1)
 
+    print(f"Debug: Bucket={bucket}, Region={region}", flush=True)
+    print(f"Debug: SecretId={secret_id[:4]}***{secret_id[-4:]}", flush=True)
+    
     try:
         url = upload_and_sign(secret_id, secret_key, region, bucket, local_file, remote_path)
         
