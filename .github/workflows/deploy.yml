@@ -32,6 +32,11 @@ jobs:
       - name: Build binary
         run: |
           CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o manjing-ai-go ./cmd/api
+          
+          # Install UPX and compress
+          sudo apt-get update && sudo apt-get install -y upx
+          upx --best --lzma manjing-ai-go
+          
           tar -czf migrations.tar.gz migrations/
 
       - name: Upload Binary to COS
