@@ -14,8 +14,7 @@ def upload_and_sign(secret_id, secret_key, region, bucket, local_path, remote_pa
             Bucket=bucket,
             LocalFilePath=local_path,
             Key=remote_path,
-            EnableMD5=False,
-            ProgressCallback=None
+            EnableMD5=False
         )
     except Exception as e:
         print(f"Upload failed: {e}", file=sys.stderr)
