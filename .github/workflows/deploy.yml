@@ -59,7 +59,7 @@ jobs:
             
             echo "4. Restarting Service..."
             export PATH=$PATH:/root/.nvm/versions/node/v22.22.0/bin
-            pm2 restart manjing-go || pm2 start ./manjing-ai-go --name "manjing-go" -- -config config.yaml
+            pm2 restart manjing-go || pm2 start ./manjing-ai-go --name "manjing-go" -- -config config.dev.yaml
             
             echo "5. Health Check..."
             sleep 5
