@@ -1,0 +1,72 @@
+name: Deploy to Server
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+
+      - name: Build binary
+        run: |
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o manjing-ai-go ./cmd/api
+
+      - name: Package files
+        run: |
+          tar -czf deploy.tar.gz manjing-ai-go migrations/
+
+      - name: Upload to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.HOST43 }}
+          username: ${{ secrets.USER43 }}
+          password: ${{ secrets.PASSWORD43 }}
+          source: "deploy.tar.gz"
+          target: "/tmp/deploy/"
+
+      - name: Deploy and Restart
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOST43 }}
+          username: ${{ secrets.USER43 }}
+          password: ${{ secrets.PASSWORD43 }}
+          script: |
+            # 创建应用目录（如果不存在）
+            mkdir -p ~/manjing-ai-go
+            
+            # 备份旧二进制
+            if [ -f ~/manjing-ai-go/manjing-ai-go ]; then
+              cp ~/manjing-ai-go/manjing-ai-go ~/manjing-ai-go/manjing-ai-go.bak
+            fi
+            
+            # 解压新文件
+            tar -xzf /tmp/deploy/deploy.tar.gz -C /tmp/deploy/
+            
+            # 替换二进制和更新迁移文件
+            mv /tmp/deploy/manjing-ai-go ~/manjing-ai-go/
+            chmod +x ~/manjing-ai-go/manjing-ai-go
+            
+            # 同步 migrations
+            rsync -a /tmp/deploy/migrations/ ~/manjing-ai-go/migrations/
+            
+            # 清理临时文件
+            rm -rf /tmp/deploy/deploy.tar.gz /tmp/deploy/manjing-ai-go /tmp/deploy/migrations
+            
+            # 重启服务 (使用 PM2 进程名)
+            # 注意：如果 PM2 环境变量有问题，需指定完整路径或 source 环境
+            export PATH=$PATH:/root/.nvm/versions/node/v20.18.0/bin
+            pm2 restart manjing-go || pm2 start ~/manjing-ai-go/manjing-ai-go --name "manjing-go" -- -config ~/manjing-ai-go/config.yaml
+
+            # 简单的健康检查
+            sleep 5
+            curl -f http://localhost:10081/health || (echo "Health check failed, rolling back..." && cp ~/manjing-ai-go/manjing-ai-go.bak ~/manjing-ai-go/manjing-ai-go && pm2 restart manjing-go && exit 1)

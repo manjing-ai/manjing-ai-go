@@ -43,9 +43,11 @@ tmp/
 temp/
 
 # Docs (generated or not needed in repo)
-docs/
+# docs/
 !docs/README.md
 
 # dev-config
 config.dev.yaml
 config.local.yaml
+
+storage/
