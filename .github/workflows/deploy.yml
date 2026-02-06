@@ -19,11 +19,8 @@ jobs:
 
       - name: Build binary
         run: |
-          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o manjing-ai-go ./cmd/api
-
-      - name: Package files
-        run: |
-          tar -czf deploy.tar.gz manjing-ai-go migrations/
+          # 使用 -ldflags="-s -w" 大幅压缩二进制体积
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o manjing-ai-go ./cmd/api
 
       - name: Upload to server
         uses: appleboy/scp-action@v0.1.7
@@ -31,8 +28,11 @@ jobs:
           host: ${{ secrets.HOST43 }}
           username: ${{ secrets.USER43 }}
           password: ${{ secrets.PASSWORD43 }}
-          source: "deploy.tar.gz"
+          source: "manjing-ai-go,migrations/"
           target: "/tmp/deploy/"
+          rm: true
+          strip_components: 0
+          debug: true # 打印详细日志，方便查看进度
 
       - name: Deploy and Restart
         uses: appleboy/ssh-action@v1.0.3
@@ -49,10 +49,7 @@ jobs:
               cp ~/manjing-ai-go/manjing-ai-go ~/manjing-ai-go/manjing-ai-go.bak
             fi
             
-            # 解压新文件
-            tar -xzf /tmp/deploy/deploy.tar.gz -C /tmp/deploy/
-            
-            # 替换二进制和更新迁移文件
+            # 替换二进制 (由于 scp-action 直接传文件，不需要解压)
             mv /tmp/deploy/manjing-ai-go ~/manjing-ai-go/
             chmod +x ~/manjing-ai-go/manjing-ai-go
             
@@ -60,11 +57,10 @@ jobs:
             rsync -a /tmp/deploy/migrations/ ~/manjing-ai-go/migrations/
             
             # 清理临时文件
-            rm -rf /tmp/deploy/deploy.tar.gz /tmp/deploy/manjing-ai-go /tmp/deploy/migrations
+            rm -rf /tmp/deploy/manjing-ai-go /tmp/deploy/migrations
             
             # 重启服务 (使用 PM2 进程名)
-            # 注意：如果 PM2 环境变量有问题，需指定完整路径或 source 环境
-            export PATH=$PATH:/root/.nvm/versions/node/v20.18.0/bin
+            export PATH=$PATH:/root/.nvm/versions/node/v22.22.0/bin
             pm2 restart manjing-go || pm2 start ~/manjing-ai-go/manjing-ai-go --name "manjing-go" -- -config ~/manjing-ai-go/config.yaml
 
             # 简单的健康检查
