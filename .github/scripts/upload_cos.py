@@ -15,6 +15,7 @@ def upload_and_sign(secret_id, secret_key, region, bucket, local_path, remote_pa
             LocalFilePath=local_path,
             Key=remote_path,
             EnableMD5=False
+            # ProgressCallback removed as it caused issues
         )
     except Exception as e:
         print(f"Upload failed: {e}", file=sys.stderr)
@@ -43,14 +44,20 @@ if __name__ == "__main__":
     bucket = os.environ.get("COS_BUCKET")
 
     if not all([secret_id, secret_key, region, bucket]):
-        print("Error: Missing env vars: TENCENT_SECRET_ID, TENCENT_SECRET_KEY, COS_REGION, COS_BUCKET", file=sys.stderr)
+        print("Error: Missing env vars", file=sys.stderr)
         sys.exit(1)
 
     try:
         url = upload_and_sign(secret_id, secret_key, region, bucket, local_file, remote_path)
-        # Use the specific output format or just print URL to stdout
-        # We will print to stdout so the shell script can capture it
-        print(f"::set-output name=url::{url}")
+        
+        # Write to GITHUB_OUTPUT (Modern way)
+        if "GITHUB_OUTPUT" in os.environ:
+            with open(os.environ["GITHUB_OUTPUT"], "a") as f:
+                f.write(f"url={url}\n")
+        else:
+            # Fallback for local testing
+            print(f"::set-output name=url::{url}")
+            
     except Exception as e:
         print(f"Error: {e}", file=sys.stderr)
         sys.exit(1)
