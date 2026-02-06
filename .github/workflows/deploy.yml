@@ -1,4 +1,4 @@
-name: Deploy to Server (COS Relay)
+name: Deploy to Server (Git Pull)
 
 on:
   push:
@@ -9,91 +9,58 @@ on:
       - 'README.md'
 
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
     
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: '1.23'
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.x'
-
-      - name: Install COS SDK
-        run: pip install -U cos-python-sdk-v5
-
-      - name: Build binary
-        run: |
-          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o manjing-ai-go ./cmd/api
-          
-          # Install UPX and compress
-          sudo apt-get update && sudo apt-get install -y upx
-          upx --best --lzma manjing-ai-go
-          
-          tar -czf migrations.tar.gz migrations/
-
-      - name: Upload Binary to COS
-        id: upload_bin
-        env:
-          TENCENT_SECRET_ID: ${{ secrets.TENCENT_SECRET_ID }}
-          TENCENT_SECRET_KEY: ${{ secrets.TENCENT_SECRET_KEY }}
-          COS_BUCKET: ${{ secrets.COS_BUCKET }}
-          COS_REGION: ${{ secrets.COS_REGION }}
-        run: |
-          # The script outputs ::set-output name=url::... which GitHub Actions parses
-          python .github/scripts/upload_cos.py manjing-ai-go deploy/manjing-ai-go-latest
-
-      - name: Upload Migrations to COS
-        id: upload_mig
-        env:
-          TENCENT_SECRET_ID: ${{ secrets.TENCENT_SECRET_ID }}
-          TENCENT_SECRET_KEY: ${{ secrets.TENCENT_SECRET_KEY }}
-          COS_BUCKET: ${{ secrets.COS_BUCKET }}
-          COS_REGION: ${{ secrets.COS_REGION }}
-        run: |
-          python .github/scripts/upload_cos.py migrations.tar.gz deploy/migrations-latest.tar.gz
-
-      - name: Deploy on Server
+      - name: Trigger Server Deployment
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.HOST43 }}
           username: ${{ secrets.USER43 }}
           password: ${{ secrets.PASSWORD43 }}
+          script_stop: true
           script: |
-            # 从 steps context 获取 presigned URL
-            BINARY_URL="${{ steps.upload_bin.outputs.url }}"
-            MIG_URL="${{ steps.upload_mig.outputs.url }}"
-            
-            echo "1. Downloading binary from COS..."
-            curl -L -o /tmp/manjing-ai-go.new "$BINARY_URL"
-            curl -L -o /tmp/migrations.tar.gz "$MIG_URL"
-            
-            echo "2. Installing..."
+            echo "1. Preparing environment..."
+            # 确保目录存在
             mkdir -p ~/manjing-ai-go
+            cd ~/manjing-ai-go
             
-            # Backup
-            [ -f ~/manjing-ai-go/manjing-ai-go ] && cp ~/manjing-ai-go/manjing-ai-go ~/manjing-ai-go/manjing-ai-go.bak
+            # 如果是第一次，需要 clone，否则 pull
+            if [ ! -d ".git" ]; then
+                echo "Cloning repository..."
+                git clone https://github.com/manjing-ai/manjing-ai-go.git .
+            fi
             
-            # Replace
-            mv /tmp/manjing-ai-go.new ~/manjing-ai-go/manjing-ai-go
-            chmod +x ~/manjing-ai-go/manjing-ai-go
+            echo "2. Pulling latest code (with retry)..."
+            # 重试逻辑：尝试 5 次，每次间隔 2 秒
+            count=0
+            retries=5
+            until git pull origin main; do
+                exit_code=$?
+                count=$((count + 1))
+                if [ $count -lt $retries ]; then
+                    echo "Pull failed. Retrying $count/$retries in 2s..."
+                    sleep 2
+                else
+                    echo "Git pull failed after $retries attempts."
+                    exit $exit_code
+                fi
+            done
             
-            # Update migrations
-            tar -xzf /tmp/migrations.tar.gz -C /tmp/
-            rsync -a /tmp/migrations/ ~/manjing-ai-go/migrations/
-            rm -rf /tmp/migrations /tmp/migrations.tar.gz
+            echo "3. Building Binary..."
+            # 使用服务器上的 Go
+            export PATH=$PATH:/usr/local/go/bin
+            go version
             
-            echo "3. Restarting Service..."
+            # 编译
+            go mod tidy
+            CGO_ENABLED=0 go build -ldflags="-s -w" -o manjing-ai-go ./cmd/api
+            
+            echo "4. Restarting Service..."
             export PATH=$PATH:/root/.nvm/versions/node/v22.22.0/bin
-            pm2 restart manjing-go || pm2 start ~/manjing-ai-go/manjing-ai-go --name "manjing-go" -- -config ~/manjing-ai-go/config.yaml
+            pm2 restart manjing-go || pm2 start ./manjing-ai-go --name "manjing-go" -- -config config.yaml
             
-            echo "4. Health Checking..."
+            echo "5. Health Check..."
             sleep 5
-            curl -f http://localhost:10081/health || (echo "Health check failed!" && exit 1)
+            curl -f http://localhost:10081/health && echo "Deploy Success" || (echo "Health Check Failed" && exit 1)
