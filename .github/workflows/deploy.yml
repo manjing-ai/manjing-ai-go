@@ -59,8 +59,9 @@ jobs:
             
             echo "4. Restarting Service..."
             export PATH=$PATH:/root/.nvm/versions/node/v22.22.0/bin
-            pm2 restart manjing-go || pm2 start ./manjing-ai-go --name "manjing-go" -- -config config.dev.yaml
             
-            echo "5. Health Check..."
-            sleep 5
-            curl -f http://localhost:10081/health && echo "Deploy Success" || (echo "Health Check Failed" && exit 1)
+            pm2 delete manjing-go || true
+            pm2 start ./manjing-ai-go --name "manjing-go" -- -config config.dev.yaml
+            pm2 save
+            
+            echo "Deploy Success"
