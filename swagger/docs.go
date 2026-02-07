@@ -530,6 +530,39 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/emails/verify-codes": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Email"
+                ],
+                "summary": "发送验证码邮件",
+                "parameters": [
+                    {
+                        "description": "发送验证码",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.SendVerifyCodeReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Resp"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/projects": {
             "get": {
                 "security": [
@@ -1128,6 +1161,10 @@ const docTemplate = `{
                     "description": "邮箱（可选）",
                     "type": "string"
                 },
+                "email_code": {
+                    "description": "邮箱验证码（注册邮箱必填）",
+                    "type": "string"
+                },
                 "password": {
                     "description": "密码（必填）",
                     "type": "string"
@@ -1154,6 +1191,19 @@ const docTemplate = `{
                 },
                 "message": {
                     "description": "状态描述",
+                    "type": "string"
+                }
+            }
+        },
+        "handler.SendVerifyCodeReq": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "description": "邮箱（必填）",
+                    "type": "string"
+                },
+                "scene": {
+                    "description": "场景（register/reset_password/login）",
                     "type": "string"
                 }
             }

@@ -19,10 +19,11 @@ func NewAuthHandler(svc service.AuthService) *AuthHandler {
 
 // RegisterReq 注册请求
 type RegisterReq struct {
-	Email    string `json:"email"`    // 邮箱（可选）
-	Phone    string `json:"phone"`    // 手机号（可选）
-	Password string `json:"password"` // 密码（必填）
-	Username string `json:"username"` // 用户名（可选）
+	Email     string `json:"email"`      // 邮箱（可选）
+	EmailCode string `json:"email_code"` // 邮箱验证码（注册邮箱必填）
+	Phone     string `json:"phone"`      // 手机号（可选）
+	Password  string `json:"password"`   // 密码（必填）
+	Username  string `json:"username"`   // 用户名（可选）
 }
 
 // LoginReq 登录请求
@@ -61,7 +62,7 @@ func (h *AuthHandler) Register(c *gin.Context) {
 		fail(c, 10001, "参数错误")
 		return
 	}
-	resp, err := h.svc.Register(c.Request.Context(), req.Email, req.Phone, req.Username, req.Password)
+	resp, err := h.svc.Register(c.Request.Context(), req.Email, req.EmailCode, req.Phone, req.Username, req.Password)
 	if err != nil {
 		fail(c, 10001, err.Error())
 		return

@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	"fmt"
 	"strings"
 	"time"
 
@@ -12,13 +13,14 @@ import (
 	"manjing-ai-go/pkg/jwtutil"
 	redisclient "manjing-ai-go/pkg/redis"
 
+	"github.com/redis/go-redis/v9"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
 // AuthService 用户认证服务
 type AuthService interface {
-	Register(ctx context.Context, email, phone, username, password string) (interface{}, error)
+	Register(ctx context.Context, email, emailCode, phone, username, password string) (interface{}, error)
 	Login(ctx context.Context, account, password string) (interface{}, error)
 	Profile(ctx context.Context, userID int64) (interface{}, error)
 	ChangePassword(ctx context.Context, userID int64, oldPassword, newPassword string) error
@@ -39,12 +41,20 @@ func NewAuthService(repo repository.UserRepository, jwtCfg config.JWTConfig, rdb
 	return &AuthServiceImpl{repo: repo, jwt: jwtCfg, rdb: rdb}
 }
 
-func (s *AuthServiceImpl) Register(ctx context.Context, email, phone, username, password string) (interface{}, error) {
+func (s *AuthServiceImpl) Register(ctx context.Context, email, emailCode, phone, username, password string) (interface{}, error) {
 	if password == "" {
 		return nil, errors.New("密码不能为空")
 	}
 	if email == "" && phone == "" {
 		return nil, errors.New("邮箱或手机号不能为空")
+	}
+	if email != "" {
+		if emailCode == "" {
+			return nil, errors.New("邮箱验证码不能为空")
+		}
+		if err := s.verifyEmailCode(ctx, email, "register", emailCode); err != nil {
+			return nil, err
+		}
 	}
 
 	if email != "" {
@@ -93,6 +103,25 @@ func (s *AuthServiceImpl) Register(ctx context.Context, email, phone, username, 
 			"email":    email,
 		},
 	}, nil
+}
+
+func (s *AuthServiceImpl) verifyEmailCode(ctx context.Context, emailAddr, scene, code string) error {
+	if s.rdb == nil {
+		return errors.New("验证码服务不可用")
+	}
+	key := fmt.Sprintf("email:code:%s:%s", scene, emailAddr)
+	val, err := s.rdb.RDB.Get(ctx, key).Result()
+	if err != nil {
+		if errors.Is(err, redis.Nil) {
+			return errors.New("邮箱验证码错误或已失效")
+		}
+		return err
+	}
+	if val != code {
+		return errors.New("邮箱验证码错误或已失效")
+	}
+	_ = s.rdb.RDB.Del(ctx, key).Err()
+	return nil
 }
 
 func (s *AuthServiceImpl) Login(ctx context.Context, account, password string) (interface{}, error) {

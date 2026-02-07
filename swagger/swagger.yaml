@@ -64,6 +64,9 @@ definitions:
       email:
         description: 邮箱（可选）
         type: string
+      email_code:
+        description: 邮箱验证码（注册邮箱必填）
+        type: string
       password:
         description: 密码（必填）
         type: string
@@ -83,6 +86,15 @@ definitions:
         description: 业务数据
       message:
         description: 状态描述
+        type: string
+    type: object
+  handler.SendVerifyCodeReq:
+    properties:
+      email:
+        description: 邮箱（必填）
+        type: string
+      scene:
+        description: 场景（register/reset_password/login）
         type: string
     type: object
   handler.StatusReq:
@@ -466,6 +478,27 @@ paths:
       summary: 恢复章节
       tags:
       - Chapter
+  /v1/emails/verify-codes:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 发送验证码
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handler.SendVerifyCodeReq'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/handler.Resp'
+      summary: 发送验证码邮件
+      tags:
+      - Email
   /v1/projects:
     get:
       parameters:

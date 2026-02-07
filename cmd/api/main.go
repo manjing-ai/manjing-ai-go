@@ -9,6 +9,7 @@ import (
 	"manjing-ai-go/internal/repository"
 	"manjing-ai-go/internal/router"
 	"manjing-ai-go/internal/service"
+	"manjing-ai-go/pkg/email"
 	"manjing-ai-go/pkg/logger"
 	redisclient "manjing-ai-go/pkg/redis"
 	"manjing-ai-go/pkg/storage"
@@ -66,7 +67,20 @@ func main() {
 	chapterSvc := service.NewChapterService(chapterRepo, projectRepo)
 	chapterHandler := handler.NewChapterHandler(chapterSvc)
 
-	r := router.NewRouter(cfg, authHandler, resHandler, projectHandler, chapterHandler, rdb)
+	emailClient := email.NewSMTPClient(email.SMTPConfig{
+		Host:        cfg.Email.SMTP.Host,
+		Port:        cfg.Email.SMTP.Port,
+		Username:    cfg.Email.SMTP.Username,
+		Password:    cfg.Email.SMTP.Password,
+		UseSSL:      cfg.Email.SMTP.UseSSL,
+		UseStartTLS: cfg.Email.SMTP.UseStartTLS,
+		FromName:    cfg.Email.FromName,
+		FromAddr:    cfg.Email.FromAddr,
+	})
+	emailSvc := service.NewEmailService(cfg.Email, rdb, emailClient)
+	emailHandler := handler.NewEmailHandler(emailSvc)
+
+	r := router.NewRouter(cfg, authHandler, resHandler, projectHandler, chapterHandler, emailHandler, rdb)
 	logger.L().Info("api listening on ", cfg.App.Addr)
 	_ = r.Run(cfg.App.Addr)
 }

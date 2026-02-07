@@ -13,7 +13,7 @@ import (
 )
 
 // NewRouter 构建路由
-func NewRouter(cfg *config.Config, authHandler *handler.AuthHandler, resHandler *handler.ResourceHandler, projectHandler *handler.ProjectHandler, chapterHandler *handler.ChapterHandler, rdb *redisclient.Client) *gin.Engine {
+func NewRouter(cfg *config.Config, authHandler *handler.AuthHandler, resHandler *handler.ResourceHandler, projectHandler *handler.ProjectHandler, chapterHandler *handler.ChapterHandler, emailHandler *handler.EmailHandler, rdb *redisclient.Client) *gin.Engine {
 	r := gin.New()
 	r.Use(gin.Recovery())
 
@@ -45,6 +45,11 @@ func NewRouter(cfg *config.Config, authHandler *handler.AuthHandler, resHandler 
 			users.PUT("/:id/status", authHandler.UpdateStatus)
 			users.PUT("/:id/avatar", authHandler.UpdateAvatar)
 		}
+	}
+
+	v1Public := r.Group("/v1")
+	{
+		v1Public.POST("/emails/verify-codes", emailHandler.SendVerifyCode)
 	}
 
 	v1 := r.Group("/v1")

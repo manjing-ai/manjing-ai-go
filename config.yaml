@@ -29,3 +29,41 @@ storage:
 
 swagger:
   enable: true
+
+email:
+  provider: "tencent_smtp"
+  smtp:
+    host: "smtp.qq.com"
+    port: 465
+    username: ""
+    password: ""
+    use_ssl: true
+    use_starttls: false
+  from_name: "Manjing AI"
+  from_address: "noreply@example.com"
+  templates:
+    EMAIL_REGISTER: "您的验证码是 {{.code}}，有效期 {{.expire_minutes}} 分钟"
+    EMAIL_RESET: "您的验证码是 {{.code}}，有效期 {{.expire_minutes}} 分钟"
+    EMAIL_LOGIN: "您的验证码是 {{.code}}，有效期 {{.expire_minutes}} 分钟"
+  subjects:
+    EMAIL_REGISTER: "验证码"
+    EMAIL_RESET: "验证码"
+    EMAIL_LOGIN: "验证码"
+  scenes:
+    register:
+      template_code: "EMAIL_REGISTER"
+      subject: "验证码"
+      ttl_seconds: 300
+    reset_password:
+      template_code: "EMAIL_RESET"
+      subject: "验证码"
+      ttl_seconds: 300
+    login:
+      template_code: "EMAIL_LOGIN"
+      subject: "验证码"
+      ttl_seconds: 300
+  code:
+    ttl_seconds: 300
+    length: 6
+  rate_limit:
+    interval_seconds: 60
