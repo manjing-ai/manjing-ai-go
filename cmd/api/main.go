@@ -58,7 +58,15 @@ func main() {
 	resSvc := service.NewResourceService(resRepo, storageSvc, cfg.Storage)
 	resHandler := handler.NewResourceHandler(resSvc)
 
-	r := router.NewRouter(cfg, authHandler, resHandler, rdb)
+	projectRepo := repository.NewProjectRepo(db)
+	projectSvc := service.NewProjectService(projectRepo)
+	projectHandler := handler.NewProjectHandler(projectSvc)
+
+	chapterRepo := repository.NewChapterRepo(db)
+	chapterSvc := service.NewChapterService(chapterRepo, projectRepo)
+	chapterHandler := handler.NewChapterHandler(chapterSvc)
+
+	r := router.NewRouter(cfg, authHandler, resHandler, projectHandler, chapterHandler, rdb)
 	logger.L().Info("api listening on ", cfg.App.Addr)
 	_ = r.Run(cfg.App.Addr)
 }

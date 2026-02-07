@@ -6,7 +6,7 @@
 
 1) 修改 `config.yaml`
 2) 迁移数据库：
-   - `go run ./cmd/migrate up`
+   - `go run ./cmd/migrate -config config.local.yaml up`
 3) 启动 API：
    - `go run ./cmd/api`
    - 直接指定配置文件：`go run ./cmd/api -config config.local.yaml`

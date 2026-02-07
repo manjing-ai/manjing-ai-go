@@ -258,6 +258,543 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/chapters": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Chapter"
+                ],
+                "summary": "获取章节列表",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "项目ID",
+                        "name": "project_id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页码",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "每页数量",
+                        "name": "page_size",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "状态",
+                        "name": "status",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "关键词",
+                        "name": "keyword",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "排序",
+                        "name": "sort",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Resp"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Chapter"
+                ],
+                "summary": "创建章节",
+                "parameters": [
+                    {
+                        "description": "创建章节",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.CreateChapterReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Resp"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/chapters/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Chapter"
+                ],
+                "summary": "获取章节详情",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "章节ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Resp"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Chapter"
+                ],
+                "summary": "更新章节",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "章节ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "更新章节",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.UpdateChapterReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Resp"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Chapter"
+                ],
+                "summary": "删除章节",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "章节ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Resp"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/chapters/{id}/archive": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Chapter"
+                ],
+                "summary": "归档章节",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "章节ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Resp"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/chapters/{id}/restore": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Chapter"
+                ],
+                "summary": "恢复章节",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "章节ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Resp"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/projects": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Project"
+                ],
+                "summary": "获取项目列表",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "页码",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "每页数量",
+                        "name": "page_size",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "状态",
+                        "name": "status",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "关键词",
+                        "name": "keyword",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "排序",
+                        "name": "sort",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Resp"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Project"
+                ],
+                "summary": "创建项目",
+                "parameters": [
+                    {
+                        "description": "创建项目",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.CreateProjectReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Resp"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/projects/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Project"
+                ],
+                "summary": "获取项目详情",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "项目ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Resp"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Project"
+                ],
+                "summary": "更新项目",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "项目ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "更新项目",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.UpdateProjectReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Resp"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Project"
+                ],
+                "summary": "删除项目",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "项目ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Resp"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/projects/{id}/archive": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Project"
+                ],
+                "summary": "归档项目",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "项目ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Resp"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/projects/{id}/restore": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Project"
+                ],
+                "summary": "恢复项目",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "项目ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Resp"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/resources": {
             "get": {
                 "security": [
@@ -508,6 +1045,56 @@ const docTemplate = `{
                 }
             }
         },
+        "handler.CreateChapterReq": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "description": "章节内容（可选）",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "章节名称（必填）",
+                    "type": "string"
+                },
+                "order_index": {
+                    "description": "章节顺序（可选）",
+                    "type": "integer"
+                },
+                "project_id": {
+                    "description": "项目ID（必填）",
+                    "type": "integer"
+                },
+                "summary": {
+                    "description": "章节摘要（可选）",
+                    "type": "string"
+                }
+            }
+        },
+        "handler.CreateProjectReq": {
+            "type": "object",
+            "properties": {
+                "cover_resource_id": {
+                    "description": "封面资源ID（可选）",
+                    "type": "integer"
+                },
+                "name": {
+                    "description": "项目名称（必填）",
+                    "type": "string"
+                },
+                "narrative_mode": {
+                    "description": "叙事模式（1剧情/2旁白，默认1）",
+                    "type": "integer"
+                },
+                "style_ref": {
+                    "description": "风格参考（可选）",
+                    "type": "string"
+                },
+                "video_aspect_ratio": {
+                    "description": "视频比例（可选，默认16:9）",
+                    "type": "string"
+                }
+            }
+        },
         "handler.LoginReq": {
             "type": "object",
             "properties": {
@@ -577,6 +1164,60 @@ const docTemplate = `{
                 "status": {
                     "description": "状态（0禁用/1正常）",
                     "type": "integer"
+                }
+            }
+        },
+        "handler.UpdateChapterReq": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "description": "章节内容（可选）",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "章节名称（可选）",
+                    "type": "string"
+                },
+                "order_index": {
+                    "description": "章节顺序（可选）",
+                    "type": "integer"
+                },
+                "status": {
+                    "description": "状态（可选：1进行中/2归档/3删除）",
+                    "type": "integer"
+                },
+                "summary": {
+                    "description": "章节摘要（可选）",
+                    "type": "string"
+                }
+            }
+        },
+        "handler.UpdateProjectReq": {
+            "type": "object",
+            "properties": {
+                "cover_resource_id": {
+                    "description": "封面资源ID（可选）",
+                    "type": "integer"
+                },
+                "name": {
+                    "description": "项目名称（可选）",
+                    "type": "string"
+                },
+                "narrative_mode": {
+                    "description": "叙事模式（可选：1剧情/2旁白）",
+                    "type": "integer"
+                },
+                "status": {
+                    "description": "状态（可选：1进行中/2归档/3删除）",
+                    "type": "integer"
+                },
+                "style_ref": {
+                    "description": "风格参考（可选）",
+                    "type": "string"
+                },
+                "video_aspect_ratio": {
+                    "description": "视频比例（可选）",
+                    "type": "string"
                 }
             }
         },

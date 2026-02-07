@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"os"
 
@@ -12,18 +13,27 @@ import (
 )
 
 func main() {
-	if len(os.Args) < 2 {
-		fmt.Println("usage: migrate [up|down|force <version>]")
+	fs := flag.NewFlagSet("migrate", flag.ExitOnError)
+	configPath := fs.String("config", "", "config file path")
+	_ = fs.Parse(os.Args[1:])
+	args := fs.Args()
+	if len(args) < 1 {
+		fmt.Println("usage: migrate [-config path] [up|down|force <version>]")
 		os.Exit(1)
 	}
 
-	cfg := config.MustLoad()
+	var cfg *config.Config
+	if *configPath != "" {
+		cfg = config.MustLoadWithPath(*configPath)
+	} else {
+		cfg = config.MustLoad()
+	}
 	m, err := migrate.New("file://migrations", cfg.DB.DSN)
 	if err != nil {
 		panic(err)
 	}
 
-	switch os.Args[1] {
+	switch args[0] {
 	case "up":
 		if err := m.Up(); err != nil && err != migrate.ErrNoChange {
 			panic(err)
@@ -33,11 +43,11 @@ func main() {
 			panic(err)
 		}
 	case "force":
-		if len(os.Args) < 3 {
-			fmt.Println("usage: migrate force <version>")
+		if len(args) < 2 {
+			fmt.Println("usage: migrate [-config path] force <version>")
 			os.Exit(1)
 		}
-		version := os.Args[2]
+		version := args[1]
 		var v uint
 		if _, err := fmt.Sscanf(version, "%d", &v); err != nil {
 			panic(err)

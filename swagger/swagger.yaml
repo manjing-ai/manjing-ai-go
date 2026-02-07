@@ -5,6 +5,42 @@ definitions:
         description: 头像URL
         type: string
     type: object
+  handler.CreateChapterReq:
+    properties:
+      content:
+        description: 章节内容（可选）
+        type: string
+      name:
+        description: 章节名称（必填）
+        type: string
+      order_index:
+        description: 章节顺序（可选）
+        type: integer
+      project_id:
+        description: 项目ID（必填）
+        type: integer
+      summary:
+        description: 章节摘要（可选）
+        type: string
+    type: object
+  handler.CreateProjectReq:
+    properties:
+      cover_resource_id:
+        description: 封面资源ID（可选）
+        type: integer
+      name:
+        description: 项目名称（必填）
+        type: string
+      narrative_mode:
+        description: 叙事模式（1剧情/2旁白，默认1）
+        type: integer
+      style_ref:
+        description: 风格参考（可选）
+        type: string
+      video_aspect_ratio:
+        description: 视频比例（可选，默认16:9）
+        type: string
+    type: object
   handler.LoginReq:
     properties:
       account:
@@ -54,6 +90,45 @@ definitions:
       status:
         description: 状态（0禁用/1正常）
         type: integer
+    type: object
+  handler.UpdateChapterReq:
+    properties:
+      content:
+        description: 章节内容（可选）
+        type: string
+      name:
+        description: 章节名称（可选）
+        type: string
+      order_index:
+        description: 章节顺序（可选）
+        type: integer
+      status:
+        description: 状态（可选：1进行中/2归档/3删除）
+        type: integer
+      summary:
+        description: 章节摘要（可选）
+        type: string
+    type: object
+  handler.UpdateProjectReq:
+    properties:
+      cover_resource_id:
+        description: 封面资源ID（可选）
+        type: integer
+      name:
+        description: 项目名称（可选）
+        type: string
+      narrative_mode:
+        description: 叙事模式（可选：1剧情/2旁白）
+        type: integer
+      status:
+        description: 状态（可选：1进行中/2归档/3删除）
+        type: integer
+      style_ref:
+        description: 风格参考（可选）
+        type: string
+      video_aspect_ratio:
+        description: 视频比例（可选）
+        type: string
     type: object
   handler.UpdateReq:
     properties:
@@ -223,6 +298,337 @@ paths:
       summary: 更新用户状态
       tags:
       - User
+  /v1/chapters:
+    get:
+      parameters:
+      - description: 项目ID
+        in: query
+        name: project_id
+        required: true
+        type: integer
+      - description: 页码
+        in: query
+        name: page
+        type: integer
+      - description: 每页数量
+        in: query
+        name: page_size
+        type: integer
+      - description: 状态
+        in: query
+        name: status
+        type: integer
+      - description: 关键词
+        in: query
+        name: keyword
+        type: string
+      - description: 排序
+        in: query
+        name: sort
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.Resp'
+      security:
+      - BearerAuth: []
+      summary: 获取章节列表
+      tags:
+      - Chapter
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 创建章节
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handler.CreateChapterReq'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/handler.Resp'
+      security:
+      - BearerAuth: []
+      summary: 创建章节
+      tags:
+      - Chapter
+  /v1/chapters/{id}:
+    delete:
+      parameters:
+      - description: 章节ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+          schema:
+            $ref: '#/definitions/handler.Resp'
+      security:
+      - BearerAuth: []
+      summary: 删除章节
+      tags:
+      - Chapter
+    get:
+      parameters:
+      - description: 章节ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.Resp'
+      security:
+      - BearerAuth: []
+      summary: 获取章节详情
+      tags:
+      - Chapter
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: 章节ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 更新章节
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handler.UpdateChapterReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.Resp'
+      security:
+      - BearerAuth: []
+      summary: 更新章节
+      tags:
+      - Chapter
+  /v1/chapters/{id}/archive:
+    post:
+      parameters:
+      - description: 章节ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.Resp'
+      security:
+      - BearerAuth: []
+      summary: 归档章节
+      tags:
+      - Chapter
+  /v1/chapters/{id}/restore:
+    post:
+      parameters:
+      - description: 章节ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.Resp'
+      security:
+      - BearerAuth: []
+      summary: 恢复章节
+      tags:
+      - Chapter
+  /v1/projects:
+    get:
+      parameters:
+      - description: 页码
+        in: query
+        name: page
+        type: integer
+      - description: 每页数量
+        in: query
+        name: page_size
+        type: integer
+      - description: 状态
+        in: query
+        name: status
+        type: integer
+      - description: 关键词
+        in: query
+        name: keyword
+        type: string
+      - description: 排序
+        in: query
+        name: sort
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.Resp'
+      security:
+      - BearerAuth: []
+      summary: 获取项目列表
+      tags:
+      - Project
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 创建项目
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handler.CreateProjectReq'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/handler.Resp'
+      security:
+      - BearerAuth: []
+      summary: 创建项目
+      tags:
+      - Project
+  /v1/projects/{id}:
+    delete:
+      parameters:
+      - description: 项目ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+          schema:
+            $ref: '#/definitions/handler.Resp'
+      security:
+      - BearerAuth: []
+      summary: 删除项目
+      tags:
+      - Project
+    get:
+      parameters:
+      - description: 项目ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.Resp'
+      security:
+      - BearerAuth: []
+      summary: 获取项目详情
+      tags:
+      - Project
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: 项目ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 更新项目
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handler.UpdateProjectReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.Resp'
+      security:
+      - BearerAuth: []
+      summary: 更新项目
+      tags:
+      - Project
+  /v1/projects/{id}/archive:
+    post:
+      parameters:
+      - description: 项目ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.Resp'
+      security:
+      - BearerAuth: []
+      summary: 归档项目
+      tags:
+      - Project
+  /v1/projects/{id}/restore:
+    post:
+      parameters:
+      - description: 项目ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.Resp'
+      security:
+      - BearerAuth: []
+      summary: 恢复项目
+      tags:
+      - Project
   /v1/resources:
     get:
       parameters:
