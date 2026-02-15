@@ -13,7 +13,7 @@ import (
 )
 
 // NewRouter 构建路由
-func NewRouter(cfg *config.Config, authHandler *handler.AuthHandler, resHandler *handler.ResourceHandler, projectHandler *handler.ProjectHandler, chapterHandler *handler.ChapterHandler, emailHandler *handler.EmailHandler, voiceHandler *handler.VoiceHandler, rdb *redisclient.Client) *gin.Engine {
+func NewRouter(cfg *config.Config, authHandler *handler.AuthHandler, resHandler *handler.ResourceHandler, projectHandler *handler.ProjectHandler, chapterHandler *handler.ChapterHandler, emailHandler *handler.EmailHandler, voiceHandler *handler.VoiceHandler, llmHandler *handler.LLMHandler, rdb *redisclient.Client) *gin.Engine {
 	r := gin.New()
 	r.Use(gin.Recovery())
 
@@ -82,6 +82,18 @@ func NewRouter(cfg *config.Config, authHandler *handler.AuthHandler, resHandler 
 		v1.GET("/voices/:id", voiceHandler.Detail)
 		v1.PUT("/voices/:id", voiceHandler.Update)
 		v1.DELETE("/voices/:id", voiceHandler.Delete)
+
+		// LLM 模型配置
+		v1.POST("/llm/models", llmHandler.CreateModel)
+		v1.GET("/llm/models", llmHandler.ListModels)
+		v1.GET("/llm/models/:id", llmHandler.ModelDetail)
+		v1.PUT("/llm/models/:id", llmHandler.UpdateModel)
+		v1.DELETE("/llm/models/:id", llmHandler.DeleteModel)
+		// LLM 对话
+		v1.POST("/llm/chat", llmHandler.Chat)
+		// LLM 调用日志
+		v1.GET("/llm/logs", llmHandler.ListLogs)
+		v1.GET("/llm/logs/stats", llmHandler.LogStats)
 	}
 
 	return r

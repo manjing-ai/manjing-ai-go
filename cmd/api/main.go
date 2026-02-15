@@ -10,6 +10,7 @@ import (
 	"manjing-ai-go/internal/router"
 	"manjing-ai-go/internal/service"
 	"manjing-ai-go/pkg/email"
+	"manjing-ai-go/pkg/llm"
 	"manjing-ai-go/pkg/logger"
 	redisclient "manjing-ai-go/pkg/redis"
 	"manjing-ai-go/pkg/storage"
@@ -71,6 +72,20 @@ func main() {
 	voiceSvc := service.NewVoiceService(voiceRepo)
 	voiceHandler := handler.NewVoiceHandler(voiceSvc)
 
+	// LLM 模块
+	llmModelRepo := repository.NewLLMModelRepo(db)
+	llmCallLogRepo := repository.NewLLMCallLogRepo(db)
+	llmClient := llm.NewClient(llm.ClientConfig{
+		BaseURL:     cfg.LLM.Default.BaseURL,
+		APIKey:      cfg.LLM.Default.APIKey,
+		Model:       cfg.LLM.Default.Model,
+		MaxTokens:   cfg.LLM.Default.MaxTokens,
+		Temperature: cfg.LLM.Default.Temperature,
+		Timeout:     cfg.LLM.Default.Timeout,
+	})
+	llmSvc := service.NewLLMService(llmModelRepo, llmCallLogRepo, llmClient, cfg.LLM)
+	llmHandler := handler.NewLLMHandler(llmSvc)
+
 	emailClient := email.NewSMTPClient(email.SMTPConfig{
 		Host:        cfg.Email.SMTP.Host,
 		Port:        cfg.Email.SMTP.Port,
@@ -84,7 +99,7 @@ func main() {
 	emailSvc := service.NewEmailService(cfg.Email, rdb, emailClient)
 	emailHandler := handler.NewEmailHandler(emailSvc)
 
-	r := router.NewRouter(cfg, authHandler, resHandler, projectHandler, chapterHandler, emailHandler, voiceHandler, rdb)
+	r := router.NewRouter(cfg, authHandler, resHandler, projectHandler, chapterHandler, emailHandler, voiceHandler, llmHandler, rdb)
 	logger.L().Info("api listening on ", cfg.App.Addr)
 	_ = r.Run(cfg.App.Addr)
 }

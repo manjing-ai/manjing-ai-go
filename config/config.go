@@ -16,6 +16,7 @@ type Config struct {
 	Storage StorageConfig `mapstructure:"storage"`
 	Email   EmailConfig   `mapstructure:"email"`
 	Swagger SwaggerConfig `mapstructure:"swagger"`
+	LLM     LLMConfig     `mapstructure:"llm"`
 }
 
 // AppConfig 应用配置
@@ -68,6 +69,21 @@ type COSStorage struct {
 // SwaggerConfig Swagger 配置
 type SwaggerConfig struct {
 	Enable bool `mapstructure:"enable"`
+}
+
+// LLMConfig LLM 大语言模型配置
+type LLMConfig struct {
+	Default LLMModelConfig `mapstructure:"default"`
+}
+
+// LLMModelConfig 单个模型配置
+type LLMModelConfig struct {
+	BaseURL     string  `mapstructure:"base_url"`
+	APIKey      string  `mapstructure:"api_key"`
+	Model       string  `mapstructure:"model"`
+	MaxTokens   int     `mapstructure:"max_tokens"`
+	Temperature float32 `mapstructure:"temperature"`
+	Timeout     int     `mapstructure:"timeout"`
 }
 
 // EmailConfig 邮件配置
@@ -204,4 +220,9 @@ func setDefaults(v *viper.Viper) {
 	v.SetDefault("email.scenes.login.template_code", "EMAIL_LOGIN")
 	v.SetDefault("email.scenes.login.subject", "验证码")
 	v.SetDefault("email.scenes.login.ttl_seconds", 300)
+	v.SetDefault("llm.default.base_url", "https://api.deepseek.com/v1")
+	v.SetDefault("llm.default.model", "deepseek-chat")
+	v.SetDefault("llm.default.max_tokens", 4096)
+	v.SetDefault("llm.default.temperature", 0.7)
+	v.SetDefault("llm.default.timeout", 60)
 }

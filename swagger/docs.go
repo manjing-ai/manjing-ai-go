@@ -563,6 +563,340 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/llm/chat": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "LLM"
+                ],
+                "summary": "发送对话请求",
+                "parameters": [
+                    {
+                        "description": "对话请求",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.ChatReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Resp"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/llm/logs": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "LLM"
+                ],
+                "summary": "调用日志列表",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "页码",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "每页数量",
+                        "name": "page_size",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "用途",
+                        "name": "purpose",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "服务商",
+                        "name": "provider",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "状态",
+                        "name": "status",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "排序",
+                        "name": "sort",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Resp"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/llm/logs/stats": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "LLM"
+                ],
+                "summary": "用量统计",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "起始时间",
+                        "name": "start_time",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "结束时间",
+                        "name": "end_time",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "分组维度",
+                        "name": "group_by",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Resp"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/llm/models": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "LLM"
+                ],
+                "summary": "模型配置列表",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "页码",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "每页数量",
+                        "name": "page_size",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "服务商",
+                        "name": "provider",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "用途",
+                        "name": "purpose",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Resp"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "LLM"
+                ],
+                "summary": "创建模型配置",
+                "parameters": [
+                    {
+                        "description": "创建模型配置",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.CreateLLMModelReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Resp"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/llm/models/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "LLM"
+                ],
+                "summary": "模型配置详情",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "模型配置ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Resp"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "LLM"
+                ],
+                "summary": "更新模型配置",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "模型配置ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "更新模型配置",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.UpdateLLMModelReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Resp"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "LLM"
+                ],
+                "summary": "删除模型配置",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "模型配置ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
         "/v1/projects": {
             "get": {
                 "security": [
@@ -1301,6 +1635,36 @@ const docTemplate = `{
                 }
             }
         },
+        "handler.ChatReq": {
+            "type": "object",
+            "properties": {
+                "max_tokens": {
+                    "type": "integer"
+                },
+                "messages": {
+                    "description": "消息列表",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/llm.ChatMessage"
+                    }
+                },
+                "model_id": {
+                    "description": "指定模型配置ID",
+                    "type": "integer"
+                },
+                "purpose": {
+                    "description": "用途",
+                    "type": "string"
+                },
+                "response_format": {
+                    "description": "text / json",
+                    "type": "string"
+                },
+                "temperature": {
+                    "type": "number"
+                }
+            }
+        },
         "handler.CreateChapterReq": {
             "type": "object",
             "properties": {
@@ -1323,6 +1687,47 @@ const docTemplate = `{
                 "summary": {
                     "description": "章节摘要（可选）",
                     "type": "string"
+                }
+            }
+        },
+        "handler.CreateLLMModelReq": {
+            "type": "object",
+            "properties": {
+                "api_key": {
+                    "description": "API密钥（必填）",
+                    "type": "string"
+                },
+                "base_url": {
+                    "description": "API端点（必填）",
+                    "type": "string"
+                },
+                "max_tokens": {
+                    "description": "最大输出Token",
+                    "type": "integer"
+                },
+                "model": {
+                    "description": "模型标识（必填）",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "显示名称（必填）",
+                    "type": "string"
+                },
+                "provider": {
+                    "description": "服务商标识（必填）",
+                    "type": "string"
+                },
+                "purpose": {
+                    "description": "用途",
+                    "type": "string"
+                },
+                "temperature": {
+                    "description": "温度参数",
+                    "type": "number"
+                },
+                "timeout": {
+                    "description": "超时时间",
+                    "type": "integer"
                 }
             }
         },
@@ -1498,6 +1903,41 @@ const docTemplate = `{
                 }
             }
         },
+        "handler.UpdateLLMModelReq": {
+            "type": "object",
+            "properties": {
+                "api_key": {
+                    "type": "string"
+                },
+                "base_url": {
+                    "type": "string"
+                },
+                "is_active": {
+                    "type": "boolean"
+                },
+                "max_tokens": {
+                    "type": "integer"
+                },
+                "model": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "provider": {
+                    "type": "string"
+                },
+                "purpose": {
+                    "type": "string"
+                },
+                "temperature": {
+                    "type": "number"
+                },
+                "timeout": {
+                    "type": "integer"
+                }
+            }
+        },
         "handler.UpdateProjectReq": {
             "type": "object",
             "properties": {
@@ -1571,6 +2011,19 @@ const docTemplate = `{
                 "tone": {
                     "description": "音色（可选）",
                     "type": "integer"
+                }
+            }
+        },
+        "llm.ChatMessage": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "description": "消息内容",
+                    "type": "string"
+                },
+                "role": {
+                    "description": "system / user / assistant",
+                    "type": "string"
                 }
             }
         }
