@@ -67,6 +67,10 @@ func main() {
 	chapterSvc := service.NewChapterService(chapterRepo, projectRepo)
 	chapterHandler := handler.NewChapterHandler(chapterSvc)
 
+	voiceRepo := repository.NewVoiceRepo(db)
+	voiceSvc := service.NewVoiceService(voiceRepo)
+	voiceHandler := handler.NewVoiceHandler(voiceSvc)
+
 	emailClient := email.NewSMTPClient(email.SMTPConfig{
 		Host:        cfg.Email.SMTP.Host,
 		Port:        cfg.Email.SMTP.Port,
@@ -80,7 +84,7 @@ func main() {
 	emailSvc := service.NewEmailService(cfg.Email, rdb, emailClient)
 	emailHandler := handler.NewEmailHandler(emailSvc)
 
-	r := router.NewRouter(cfg, authHandler, resHandler, projectHandler, chapterHandler, emailHandler, rdb)
+	r := router.NewRouter(cfg, authHandler, resHandler, projectHandler, chapterHandler, emailHandler, voiceHandler, rdb)
 	logger.L().Info("api listening on ", cfg.App.Addr)
 	_ = r.Run(cfg.App.Addr)
 }

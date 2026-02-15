@@ -1066,6 +1066,229 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/v1/voices": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Voice"
+                ],
+                "summary": "获取声音列表",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "页码",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "每页数量",
+                        "name": "page_size",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "类型：1官方/2用户",
+                        "name": "type",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "年龄段",
+                        "name": "age_group",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "性别",
+                        "name": "gender",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "方言口音",
+                        "name": "dialect",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "音色",
+                        "name": "tone",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "名称关键词",
+                        "name": "keyword",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "排序",
+                        "name": "sort",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Resp"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Voice"
+                ],
+                "summary": "创建声音",
+                "parameters": [
+                    {
+                        "description": "创建声音",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.CreateVoiceReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Resp"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/voices/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Voice"
+                ],
+                "summary": "获取声音详情",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "声音ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Resp"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Voice"
+                ],
+                "summary": "更新声音",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "声音ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "更新声音",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.UpdateVoiceReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Resp"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Voice"
+                ],
+                "summary": "删除声音",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "声音ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Resp"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -1125,6 +1348,39 @@ const docTemplate = `{
                 "video_aspect_ratio": {
                     "description": "视频比例（可选，默认16:9）",
                     "type": "string"
+                }
+            }
+        },
+        "handler.CreateVoiceReq": {
+            "type": "object",
+            "properties": {
+                "age_group": {
+                    "description": "年龄段（必填：1儿童/2少年/3青年/4中年/5老年）",
+                    "type": "integer"
+                },
+                "dialect": {
+                    "description": "方言口音（必填：1标准普通话/2东北话/3四川话/4粤语/5台湾腔/6港式普通话/7外国口音）",
+                    "type": "integer"
+                },
+                "gender": {
+                    "description": "性别（必填：1男/2女）",
+                    "type": "integer"
+                },
+                "name": {
+                    "description": "声音名称（必填，1-64字符）",
+                    "type": "string"
+                },
+                "sample_url": {
+                    "description": "试听音频URL（可选）",
+                    "type": "string"
+                },
+                "tone": {
+                    "description": "音色（必填：1标准/2清亮/3浑厚/4沙哑/5柔和/6尖细/7气声/8鼻音/9金属）",
+                    "type": "integer"
+                },
+                "type": {
+                    "description": "类型（必填：1官方/2用户）",
+                    "type": "integer"
                 }
             }
         },
@@ -1286,6 +1542,35 @@ const docTemplate = `{
                 "name": {
                     "description": "资源名称（可选）",
                     "type": "string"
+                }
+            }
+        },
+        "handler.UpdateVoiceReq": {
+            "type": "object",
+            "properties": {
+                "age_group": {
+                    "description": "年龄段（可选）",
+                    "type": "integer"
+                },
+                "dialect": {
+                    "description": "方言口音（可选）",
+                    "type": "integer"
+                },
+                "gender": {
+                    "description": "性别（可选）",
+                    "type": "integer"
+                },
+                "name": {
+                    "description": "声音名称（可选）",
+                    "type": "string"
+                },
+                "sample_url": {
+                    "description": "试听音频URL（可选）",
+                    "type": "string"
+                },
+                "tone": {
+                    "description": "音色（可选）",
+                    "type": "integer"
                 }
             }
         }

@@ -41,6 +41,30 @@ definitions:
         description: 视频比例（可选，默认16:9）
         type: string
     type: object
+  handler.CreateVoiceReq:
+    properties:
+      age_group:
+        description: 年龄段（必填：1儿童/2少年/3青年/4中年/5老年）
+        type: integer
+      dialect:
+        description: 方言口音（必填：1标准普通话/2东北话/3四川话/4粤语/5台湾腔/6港式普通话/7外国口音）
+        type: integer
+      gender:
+        description: 性别（必填：1男/2女）
+        type: integer
+      name:
+        description: 声音名称（必填，1-64字符）
+        type: string
+      sample_url:
+        description: 试听音频URL（可选）
+        type: string
+      tone:
+        description: 音色（必填：1标准/2清亮/3浑厚/4沙哑/5柔和/6尖细/7气声/8鼻音/9金属）
+        type: integer
+      type:
+        description: 类型（必填：1官方/2用户）
+        type: integer
+    type: object
   handler.LoginReq:
     properties:
       account:
@@ -154,6 +178,27 @@ definitions:
       name:
         description: 资源名称（可选）
         type: string
+    type: object
+  handler.UpdateVoiceReq:
+    properties:
+      age_group:
+        description: 年龄段（可选）
+        type: integer
+      dialect:
+        description: 方言口音（可选）
+        type: integer
+      gender:
+        description: 性别（可选）
+        type: integer
+      name:
+        description: 声音名称（可选）
+        type: string
+      sample_url:
+        description: 试听音频URL（可选）
+        type: string
+      tone:
+        description: 音色（可选）
+        type: integer
     type: object
 info:
   contact: {}
@@ -812,6 +857,145 @@ paths:
       summary: 更新资源信息
       tags:
       - Resource
+  /v1/voices:
+    get:
+      parameters:
+      - description: 页码
+        in: query
+        name: page
+        type: integer
+      - description: 每页数量
+        in: query
+        name: page_size
+        type: integer
+      - description: 类型：1官方/2用户
+        in: query
+        name: type
+        type: integer
+      - description: 年龄段
+        in: query
+        name: age_group
+        type: integer
+      - description: 性别
+        in: query
+        name: gender
+        type: integer
+      - description: 方言口音
+        in: query
+        name: dialect
+        type: integer
+      - description: 音色
+        in: query
+        name: tone
+        type: integer
+      - description: 名称关键词
+        in: query
+        name: keyword
+        type: string
+      - description: 排序
+        in: query
+        name: sort
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.Resp'
+      security:
+      - BearerAuth: []
+      summary: 获取声音列表
+      tags:
+      - Voice
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 创建声音
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handler.CreateVoiceReq'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/handler.Resp'
+      security:
+      - BearerAuth: []
+      summary: 创建声音
+      tags:
+      - Voice
+  /v1/voices/{id}:
+    delete:
+      parameters:
+      - description: 声音ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+          schema:
+            $ref: '#/definitions/handler.Resp'
+      security:
+      - BearerAuth: []
+      summary: 删除声音
+      tags:
+      - Voice
+    get:
+      parameters:
+      - description: 声音ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.Resp'
+      security:
+      - BearerAuth: []
+      summary: 获取声音详情
+      tags:
+      - Voice
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: 声音ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 更新声音
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handler.UpdateVoiceReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.Resp'
+      security:
+      - BearerAuth: []
+      summary: 更新声音
+      tags:
+      - Voice
 securityDefinitions:
   BearerAuth:
     in: header
